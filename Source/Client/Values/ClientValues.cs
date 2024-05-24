@@ -41,6 +41,7 @@ namespace GameClient
         public static bool muteSoundBool;
         public static bool rejectTransferBool;
         public static bool rejectSiteRewardsBool;
+        public static bool saveMessageBool;
 
         public static float autosaveDays = 1.0f;
         public static float autosaveCurrentTicks;
@@ -62,7 +63,16 @@ namespace GameClient
             DisconnectionManager.intentionalDisconnectReason = reason; 
         }
 
-        public static void ToggleReadyToPlay(bool mode) { isReadyToPlay = mode; }
+        public static void ToggleReadyToPlay(bool mode) 
+        { 
+            isReadyToPlay = mode;
+
+            ReadyToPlayData readyToPlayData = new ReadyToPlayData();
+            readyToPlayData.ReadyToPlay = mode;
+
+            Packet packet = Packet.CreatePacketFromJSON(nameof(PacketHandler.ReadyToPlayPacket), readyToPlayData);
+            Network.listener.EnqueuePacket(packet);
+        }
 
         public static void ToggleTransfer(bool mode) { isInTransfer = mode; }
 

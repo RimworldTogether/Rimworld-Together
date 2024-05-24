@@ -71,6 +71,8 @@ namespace GameServer
 
         private static void OnUserSave(ServerClient client, FileTransferData fileTransferData)
         {
+            Master.plugins.Emit("onUserSave_post", client, fileTransferData);
+
             if (fileTransferData.instructions == (int)SaveMode.Disconnect)
             {
                 client.listener.disconnectFlag = true;

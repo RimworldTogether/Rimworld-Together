@@ -64,6 +64,9 @@ namespace GameClient
             //if this is the first packet
             if (Network.listener.uploadManager == null)
             {
+                Log.Message($"[Rimworld Together] > Sending save to server");
+                if (ClientValues.saveMessageBool) Messages.Message("Save Syncing With Server...", MessageTypeDefOf.SilentInput);
+
                 ClientValues.ToggleSendingSaveToServer(true);
 
                 byte[] saveBytes = File.ReadAllBytes(saveFilePath); ;
@@ -95,6 +98,10 @@ namespace GameClient
             {
                 ClientValues.ToggleSendingSaveToServer(false);
                 Network.listener.uploadManager = null;
+
+                Log.Message($"[Rimworld Together] > Save sent to server");
+                if (ClientValues.saveMessageBool) Messages.Message("Save Synced With Server!", MessageTypeDefOf.SilentInput);
+
                 File.Delete(tempSaveFilePath);
             }
         }

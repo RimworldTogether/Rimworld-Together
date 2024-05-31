@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using RimWorld;
 using Shared;
@@ -507,7 +508,6 @@ namespace GameClient
                 float g;
                 float b;
                 float a;
-
                 string favoriteColor = humanData.favoriteColor.Replace("RGBA(", "").Replace(")", "");
                 string[] isolatedFavoriteColor = favoriteColor.Split(',');
                 r = float.Parse(isolatedFavoriteColor[0]);
@@ -1166,7 +1166,7 @@ namespace GameClient
 
         private static void GetMapTile(MapData mapData, Map map)
         {
-            mapData.mapTile = map.Tile.ToString();
+            mapData.mapTile = map.Tile;
         }
 
         private static void GetMapSize(MapData mapData, Map map)
@@ -1481,5 +1481,33 @@ namespace GameClient
             if (thing.def == ThingDefOf.MinifiedThing || thing.def == ThingDefOf.MinifiedTree) return true;
             else return false;
         }
+    }
+
+
+    //class that handles transformation of factions
+    public static class FactionScribeManager
+    {
+        public static FactionData factionToFactionDetails(FactionDef faction)
+        {
+            FactionData factionData = new FactionData();
+            factionData.defName = faction.defName;
+            factionData.fixedName = faction.fixedName;
+            factionData.autoFlee = faction.autoFlee;
+            factionData.canSiege = faction.canSiege;
+            factionData.canStageAttacks = faction.canStageAttacks;
+            factionData.canUseAvoidGrid = faction.canUseAvoidGrid;
+            factionData.earliestRaidDays = faction.earliestRaidDays;
+            factionData.rescueesCanJoin = faction.rescueesCanJoin;
+            factionData.naturalEnemy = faction.naturalEnemy;
+            factionData.permanentEnemy = faction.permanentEnemy;
+            factionData.permanentEnemyToEveryoneExceptPlayer = faction.permanentEnemyToEveryoneExceptPlayer;
+            factionData.techLevel = (byte)faction.techLevel;
+            factionData.factionIconPath = faction.factionIconPath;
+            factionData.settlementTexturePath = faction.settlementTexturePath;
+            factionData.hidden = faction.hidden;
+
+            return factionData;
+        }
+
     }
 }

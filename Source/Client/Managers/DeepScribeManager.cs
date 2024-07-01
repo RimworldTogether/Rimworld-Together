@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using RimWorld;
 using Shared;
 using UnityEngine.Assertions.Must;
@@ -946,6 +947,8 @@ namespace GameClient
 
             GetItemRotation(toUse, itemData);
 
+            GetItemArt(toUse, itemData);
+
             return itemData;
         }
 
@@ -964,6 +967,8 @@ namespace GameClient
             SetItemRotation(thing, itemData);
 
             SetItemMinified(thing, itemData);
+
+            SetItemArt(thing, itemData);
 
             return thing;
         }
@@ -1019,6 +1024,22 @@ namespace GameClient
             try { itemData.rotation = thing.Rotation.AsInt; }
             catch { Logger.Warning($"Failed to get rotation of thing {thing.def.defName}"); }
         }
+
+        private static void GetItemArt(Thing thing, ItemData itemData)
+        {
+            CompArt art = thing.TryGetComp<CompArt>();
+            itemData.isArt = false;
+            if (art == null) return;
+            if (!art.Active) return;
+            try {
+                itemData.isArt = true;
+                itemData.artTitle = TaleData_Thing.GenerateFrom(thing).title;
+                itemData.artDesc = art.TaleRef.GenerateText(TextGenerationPurpose.ArtDescription, RulePackDefOf.ArtDescription_Sculpture);
+                itemData.artAuthor = art.AuthorName;
+            }
+            catch { Log.Warning($"Failed to get Art of thing {thing.def.defName}"); }
+        }
+        
 
         private static bool GetItemMinified(Thing thing, ItemData itemData)
         {
@@ -1104,6 +1125,23 @@ namespace GameClient
                 //However, this isn't needed and is likely to cause issues with caravans if used
             }
         }
+
+        private static void SetItemArt(Thing thing, ItemData itemData)
+        {
+            try {
+                if (itemData.isArt)
+                {
+                    CompArt art = thing.TryGetComp<CompArt>();
+                    FieldInfo taleProp = art.GetType().GetField("taleRef", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    FieldInfo titleProp = art.GetType().GetField("titleInt", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    FieldInfo authorProp = art.GetType().GetField("authorNameInt", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    taleProp.SetValue(art, new EditedTaleReference(itemData.artDesc));
+                    titleProp.SetValue(art, new TaggedString(itemData.artTitle));
+                    authorProp.SetValue(art, new TaggedString(itemData.artAuthor));
+                }
+            } catch { Log.Warning($"Failed to set Art of thing {thing.def.defName}"); }
+        }
+
     }
 
     //Class that handles transformation of maps
